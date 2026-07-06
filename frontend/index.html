@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I See U — Watchlist</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #333; }
+        header { background: #1a1a2e; color: #fff; padding: 1rem 2rem; }
+        header h1 { font-size: 1.5rem; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+        .filter-bar { margin-bottom: 1.5rem; }
+        .filter-bar select { padding: 0.5rem; border-radius: 6px; border: 1px solid #ddd; }
+        table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        th, td { padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #1a1a2e; color: #fff; font-weight: 500; }
+        tr:hover { background: #f8f8ff; }
+        #movie-detail { background: #fff; border-radius: 8px; padding: 1.5rem; margin-top: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: none; }
+        .review { background: #f9f9f9; padding: 0.8rem; border-radius: 6px; margin: 0.5rem 0; }
+        #review-form-wrapper { margin-top: 1rem; }
+        #review-form-wrapper input, #review-form-wrapper select, #review-form-wrapper textarea { width: 100%; padding: 0.5rem; margin: 0.3rem 0; border-radius: 6px; border: 1px solid #ddd; }
+        #review-form-wrapper textarea { height: 80px; resize: vertical; }
+        .btn { background: #e94560; color: #fff; border: none; padding: 0.5rem 1.2rem; border-radius: 6px; cursor: pointer; font-size: 0.9rem; }
+        .btn:hover { background: #d63851; }
+        #watchlist-section { background: #fff; border-radius: 8px; padding: 1.5rem; margin-top: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .watchlist-item { display: flex; align-items: center; gap: 1rem; padding: 0.5rem 0; border-bottom: 1px solid #eee; flex-wrap: wrap; }
+        .badge { padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem; }
+        .badge.want_to_watch { background: #fff3cd; color: #856404; }
+        .badge.watched { background: #d4edda; color: #155724; }
+        .watchlist-item button { background: #eee; border: none; padding: 0.3rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+        .watchlist-item button:hover { background: #ddd; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>I See U</h1>
+    </header>
+    <div class="container">
+        <div class="filter-bar">
+            <label>Filtrar por genero: </label>
+            <select id="genre-filter">
+                <option value="">Todos</option>
+                <option value="Drama">Drama</option>
+                <option value="Crimen">Crimen</option>
+                <option value="Ciencia ficción">Ciencia ficcion</option>
+                <option value="Animación">Animacion</option>
+            </select>
+        </div>
+        <table>
+            <thead>
+                <tr><th>Titulo</th><th>Genero</th><th>Año</th><th>Director</th></tr>
+            </thead>
+            <tbody id="movies-tbody"></tbody>
+        </table>
+        <div id="movie-detail"></div>
+        <div id="watchlist-section">
+            <h3>Watchlist global</h3>
+            <div id="watchlist-items"></div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
