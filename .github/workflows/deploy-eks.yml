@@ -2,7 +2,7 @@ name: CI/CD I See U — EKS
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   workflow_dispatch: {}
 
 env:
