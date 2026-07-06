@@ -15,7 +15,8 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/iseeu-frontend:${IMAGE_TAG}
+          image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/namespace/iseeu-frontend:${IMAGE_TAG}
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
           resources:

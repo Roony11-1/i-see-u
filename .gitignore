@@ -41,3 +41,5 @@ override.tf.json
 # Mermaid source (regenerado desde .mmd)
 diagrama.png
 diagrama.mmd
+
+.env

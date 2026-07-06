@@ -3,6 +3,9 @@ kind: Service
 metadata:
   name: frontend
   namespace: iseeu
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+    service.beta.kubernetes.io/aws-load-balancer-type: external
 spec:
   type: LoadBalancer
   selector:

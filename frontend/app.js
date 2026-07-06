@@ -6,13 +6,42 @@ async function loadMovies(genre = '') {
     const movies = await res.json();
     const tbody = document.getElementById('movies-tbody');
     tbody.innerHTML = movies.map(m => `
-        <tr onclick="showMovieDetail(${m.id})" style="cursor:pointer">
-            <td>${m.title}</td>
-            <td>${m.genre}</td>
-            <td>${m.releaseYear}</td>
-            <td>${m.director}</td>
+        <tr>
+            <td onclick="showMovieDetail(${m.id})" style="cursor:pointer">${m.title}</td>
+            <td onclick="showMovieDetail(${m.id})" style="cursor:pointer">${m.genre}</td>
+            <td onclick="showMovieDetail(${m.id})" style="cursor:pointer">${m.releaseYear}</td>
+            <td onclick="showMovieDetail(${m.id})" style="cursor:pointer">${m.director}</td>
+            <td onclick="showMovieDetail(${m.id})" style="cursor:pointer">${m.reviewCount}</td>
+            <td><button class="btn-small" onclick="event.stopPropagation(); openReviewModal(${m.id}, '${m.title.replace(/'/g, "\\'")}')">Reseñar</button></td>
         </tr>
     `).join('');
+}
+
+function openReviewModal(movieId, movieTitle) {
+    document.getElementById('modal-movie-id').value = movieId;
+    document.getElementById('modal-movie-title').textContent = movieTitle;
+    document.getElementById('modal-author').value = 'Anonimo';
+    document.getElementById('modal-rating').value = 5;
+    document.getElementById('modal-comment').value = '';
+    document.getElementById('review-modal').style.display = 'flex';
+}
+
+async function submitQuickReview() {
+    const movieId = parseInt(document.getElementById('modal-movie-id').value);
+    const author = document.getElementById('modal-author').value || 'Anonimo';
+    const rating = parseInt(document.getElementById('modal-rating').value);
+    const comment = document.getElementById('modal-comment').value;
+    const res = await fetch(`${API_BASE}/movies/${movieId}/reviews`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ author, rating, comment })
+    });
+    if (res.ok) {
+        document.getElementById('review-modal').style.display = 'none';
+        loadMovies(document.getElementById('genre-filter').value);
+    } else {
+        alert('Error al enviar la reseña');
+    }
 }
 
 async function showMovieDetail(id) {
@@ -81,7 +110,7 @@ async function loadWatchlist() {
     const div = document.getElementById('watchlist-items');
     div.innerHTML = items.map(w => `
         <div class="watchlist-item">
-            <strong>${w.movie?.title || 'Cargando...'}</strong>
+            <strong>${w.movieTitle}</strong>
             <span class="badge ${w.status}">${w.status === 'want_to_watch' ? 'Pendiente' : 'Vista'}</span>
             <small>por ${w.user}</small>
             <button onclick="toggleWatchlistStatus(${w.id}, '${w.status}')">

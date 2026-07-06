@@ -53,6 +53,20 @@ aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --
 if ($LASTEXITCODE -ne 0) { Write-Host "[ERROR] Login ECR fallo" -ForegroundColor Red; exit 1 }
 
 # ============================================
+# 2.5 Crear repos ECR si no existen
+# ============================================
+Write-Host "[2/6] Verificando repositorios ECR ..." -ForegroundColor Cyan
+$existingRepos = aws ecr describe-repositories --query "repositories[*].repositoryName" --output json | ConvertFrom-Json
+foreach ($repo in @($ECR_BACKEND, $ECR_FRONTEND)) {
+    if ($repo -notin $existingRepos) {
+        Write-Host "  Creando repositorio $repo ..." -ForegroundColor Yellow
+        aws ecr create-repository --repository-name $repo
+    } else {
+        Write-Host "  Repositorio $repo ya existe." -ForegroundColor Green
+    }
+}
+
+# ============================================
 # 3. Build + push imagenes (opcional con -skipBuild)
 # ============================================
 if (-not $skipBuild) {
@@ -91,17 +105,37 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "  Conectado a: $(kubectl config current-context)" -ForegroundColor Green
 
 # ============================================
-# 5. Aplicar manifests
+# 5. Procesar manifests (reemplazar variables)
 # ============================================
-Write-Host "[5/6] Aplicando manifests a Kubernetes ..." -ForegroundColor Cyan
+Write-Host "[5/6] Procesando y aplicando manifests ..." -ForegroundColor Cyan
 
-kubectl apply --validate=false -f k8s/namespace.yaml
-kubectl apply --validate=false -f k8s/postgres/
-kubectl apply --validate=false -f k8s/backend/
-kubectl apply --validate=false -f k8s/frontend/
+$BACKEND_IMAGE = "$ECR_REGISTRY/$ECR_BACKEND`:$IMAGE_TAG"
+$FRONTEND_IMAGE = "$ECR_REGISTRY/$ECR_FRONTEND`:$IMAGE_TAG"
 
-kubectl set image deployment/backend backend=$ECR_REGISTRY/$ECR_BACKEND`:$IMAGE_TAG -n $EKS_NAMESPACE
-kubectl set image deployment/frontend frontend=$ECR_REGISTRY/$ECR_FRONTEND`:$IMAGE_TAG -n $EKS_NAMESPACE
+function Process-Manifest($item) {
+    $files = if (Test-Path -LiteralPath $item -PathType Container) {
+        Get-ChildItem -Path $item -Filter *.yaml
+    } else {
+        Get-ChildItem -Path $item
+    }
+    $files | ForEach-Object {
+        $content = Get-Content $_.FullName -Raw
+        $content = $content -replace '\$\{AWS_ACCOUNT_ID\}', $AWS_ACCOUNT_ID
+        $content = $content -replace '\$\{AWS_REGION\}', $AWS_REGION
+        $content = $content -replace '\$\{IMAGE_TAG\}', $IMAGE_TAG
+        Write-Host "  Aplicando $($_.Name) ..." -ForegroundColor Gray
+        $content | kubectl apply --validate=false -f - 2>&1
+    }
+}
+
+Process-Manifest "k8s/namespace.yaml"
+Process-Manifest "k8s/postgres"
+Process-Manifest "k8s/backend"
+Process-Manifest "k8s/frontend"
+
+# Forzar la imagen correcta en los deployments
+kubectl set image deployment/backend "backend=$BACKEND_IMAGE" -n $EKS_NAMESPACE 2>&1
+kubectl set image deployment/frontend "frontend=$FRONTEND_IMAGE" -n $EKS_NAMESPACE 2>&1
 
 # ============================================
 # 6. Verificar estado

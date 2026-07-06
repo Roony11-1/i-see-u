@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Backend.Models;
 
 public class WatchlistItem
@@ -8,5 +10,6 @@ public class WatchlistItem
     public string Status { get; set; } = "want_to_watch";
     public DateTime AddedAt { get; set; } = DateTime.UtcNow;
 
+    [JsonIgnore]
     public Movie Movie { get; set; } = null!;
 }

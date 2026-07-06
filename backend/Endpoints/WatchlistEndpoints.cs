@@ -15,6 +15,10 @@ public static class WatchlistEndpoints
             return await db.WatchlistItems
                 .Include(w => w.Movie)
                 .OrderByDescending(w => w.AddedAt)
+                .Select(w => new {
+                    w.Id, w.User, w.MovieId, w.Status, w.AddedAt,
+                    MovieTitle = w.Movie.Title
+                })
                 .ToListAsync();
         });
 

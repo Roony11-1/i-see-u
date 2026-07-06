@@ -16,7 +16,14 @@ public static class MovieEndpoints
             if (!string.IsNullOrEmpty(genre))
                 query = query.Where(m => m.Genre == genre);
 
-            return await query.OrderByDescending(m => m.CreatedAt).ToListAsync();
+            return await query
+                .Select(m => new {
+                    m.Id, m.Title, m.Description, m.Genre,
+                    m.ReleaseYear, m.PosterUrl, m.Director, m.CreatedAt,
+                    ReviewCount = m.Reviews.Count
+                })
+                .OrderByDescending(m => m.CreatedAt)
+                .ToListAsync();
         });
 
         group.MapGet("/{id}", async (int id, AppDbContext db) =>

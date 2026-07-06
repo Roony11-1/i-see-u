@@ -15,7 +15,8 @@ spec:
     spec:
       containers:
         - name: backend
-          image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/iseeu-backend:${IMAGE_TAG}
+          image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/namespace/iseeu-backend:${IMAGE_TAG}
+          imagePullPolicy: Always
           ports:
             - containerPort: 5000
           env:
